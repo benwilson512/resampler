@@ -29,7 +29,7 @@ defmodule Resampler.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:benchee, ">= 0.0.0"},
+      {:benchee, ">= 0.0.0", only: :dev},
     ]
   end
 end
