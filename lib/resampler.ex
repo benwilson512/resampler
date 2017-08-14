@@ -1,13 +1,11 @@
 defmodule Resampler do
 
   def eager(ts, width) do
-    ts
-    |> Bucket.eager(width)
+    Resampler.Bucket.eager(ts, width)
   end
 
   def lazy(ts, width) do
-    ts
-    |> Bucket.lazy(width)
+    Resampler.Bucket.lazy(ts, width)
   end
 
 end

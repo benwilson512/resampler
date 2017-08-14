@@ -1,21 +1,29 @@
 defmodule Resampler.Statistics do
   def aggregate(left, bucket) do
     {:ok, dt} = DateTime.from_unix(left)
-    timestring = DateTime.to_iso8601(dt)
+    timestring = timestring(dt)
+
     [
       timestring, ",",
-      Float.to_string(Statistics.min(bucket)), ",",
-      Float.to_string(Statistics.percentile(bucket, 25)), ",",
-      Float.to_string(Statistics.median(bucket)), ",",
-      Float.to_string(Statistics.percentile(bucket, 75)), ",",
-      Float.to_string(Statistics.max(bucket)), "\n"
+      Float.to_string(max(bucket)), ",",
+      Float.to_string(median(bucket)), ",",
+      Float.to_string(percentile(bucket, 75)), ",",
+      Float.to_string(percentile(bucket, 25)), ",",
+      Float.to_string(min(bucket)), "\n",
     ]
   end
 
   def nil_row(left) do
     {:ok, dt} = DateTime.from_unix(left)
-    timestring = DateTime.to_iso8601(dt)
+    timestring = timestring(dt)
     "#{timestring},,,,,\n"
+  end
+
+  defp timestring(time) do
+    time
+    |> DateTime.to_iso8601
+    |> String.replace("T", " ")
+    |> String.replace("Z", "")
   end
 
   # adapted from: https://github.com/msharp/elixir-statistics/blob/master/lib/statistics.ex

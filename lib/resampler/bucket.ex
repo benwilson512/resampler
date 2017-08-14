@@ -1,9 +1,16 @@
-defmodule Bucket do
-
-  def hello(), do: IO.puts "hello"
+defmodule Resampler.Bucket do
+  alias Resampler.Statistics
 
   def lazy(ts, width) do
-    [{t, _}] = Enum.take(ts, 1)
+    case Enum.take(ts, 1) do
+      [{start, _}] ->
+        do_lazy(ts, width, start)
+      _ ->
+        []
+    end
+  end
+
+  defp do_lazy(ts, width, t) do
     left   = div(t, width) * width
     right  = left + width
     buffer = []
