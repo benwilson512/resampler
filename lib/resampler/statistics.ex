@@ -1,28 +1,41 @@
 defmodule Resampler.Statistics do
-  def aggregate(left, bucket) do
-    {:ok, dt} = DateTime.from_unix(left)
+  def aggregate(ts, bucket) do
+    {
+      ts,
+      max(bucket),
+      median(bucket),
+      percentile(bucket, 75),
+      percentile(bucket, 25),
+      min(bucket)
+    }
+  end
+
+  def from_prev_row(ts, {_, max, median, p75, p25, min}) do
+    {ts, max, median, p75, p25, min}
+  end
+
+  def nil_row(left) do
+    {left, nil, nil, nil, nil, nil}
+  end
+
+  def to_csv({ts, max, median, p75, p25, min}) do
+    {:ok, dt} = DateTime.from_unix(ts)
     timestring = timestring(dt)
 
     [
       timestring,
       ",",
-      to_string(max(bucket)),
+      to_string(max),
       ",",
-      to_string(median(bucket)),
+      to_string(median),
       ",",
-      to_string(percentile(bucket, 75)),
+      to_string(p75),
       ",",
-      to_string(percentile(bucket, 25)),
+      to_string(p25),
       ",",
-      to_string(min(bucket)),
+      to_string(min),
       "\n"
     ]
-  end
-
-  def nil_row(left) do
-    {:ok, dt} = DateTime.from_unix(left)
-    timestring = timestring(dt)
-    "#{timestring},,,,,\n"
   end
 
   defp timestring(time) do
@@ -75,7 +88,7 @@ defmodule Resampler.Statistics do
 
   def percentile([], _), do: nil
   def percentile([v], _), do: v
-  def percentile(list, 0), do: min(list) |> IO.inspect()
+  def percentile(list, 0), do: min(list)
   def percentile(list, 100), do: max(list)
 
   def percentile(list, n) when is_list(list) and is_number(n) do
