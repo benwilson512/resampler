@@ -4,8 +4,8 @@ defmodule ResamplerTest do
   test "lazy is equivalent to eager with contiguous data" do
     ts = gen_ts(10, 3)
 
-    eager_result = Resample.eager(ts, 10)
-    lazy_result = Resample.lazy(ts, 10) |> Enum.to_list
+    eager_result = Resampler.eager(ts, 10)
+    lazy_result = Resampler.lazy(ts, 10) |> Enum.to_list
 
     assert eager_result == lazy_result
   end
@@ -18,7 +18,7 @@ defmodule ResamplerTest do
 
       {String.to_integer(t), String.to_float(v)}
     end)
-    |> Resample.lazy(300)
+    |> Resampler.lazy(300)
     |> Stream.into(outfile)
     |> Stream.run
   end
@@ -26,8 +26,8 @@ defmodule ResamplerTest do
   test "lazy is equivalent to eager with missing data" do
     ts = gen_ts(10, 3, gaps: true)
 
-    eager_result = Resample.eager(ts, 10)
-    lazy_result = Resample.lazy(ts, 10) |> Enum.to_list
+    eager_result = Resampler.eager(ts, 10)
+    lazy_result = Resampler.lazy(ts, 10) |> Enum.to_list
 
     assert eager_result == lazy_result
   end
