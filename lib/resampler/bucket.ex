@@ -2,12 +2,18 @@ defmodule Resampler.Bucket do
   alias Resampler.Statistics
 
   def lazy(ts, width, opts) do
-    case Enum.take(ts, 1) do
-      [{start, _}] ->
+    case Keyword.fetch(opts, :start) do
+      {:ok, start} ->
         do_lazy(ts, width, start, opts)
 
       _ ->
-        []
+        case Enum.take(ts, 1) do
+          [{start, _}] ->
+            do_lazy(ts, width, start, opts)
+
+          _ ->
+            []
+        end
     end
   end
 
@@ -28,6 +34,10 @@ defmodule Resampler.Bucket do
     |> maybe_impute(left, opts[:impute])
   end
 
+  defp maybe_impute(statistics, _, nil) do
+    statistics
+  end
+
   defp maybe_impute(statistics, start, :prev) do
     nil_row = Statistics.nil_row(start)
 
@@ -41,8 +51,14 @@ defmodule Resampler.Bucket do
     end)
   end
 
-  defp maybe_impute(statistics, _, _) do
-    statistics
+  defp maybe_impute(statistics, _, val) do
+    Stream.map(statistics, fn
+      {ts, nil, nil, nil, nil, nil} ->
+        {ts, val, val, val, val, val}
+
+      row ->
+        row
+    end)
   end
 
   defp lazy_bucket(time, value, left, right, width, buffer) when time < right do
